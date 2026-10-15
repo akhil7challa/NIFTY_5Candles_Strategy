@@ -29,7 +29,7 @@ IST = ZoneInfo("Asia/Kolkata")
 
 # Select month and year for historical analysis.
 SELECTED_YEAR = 2026
-SELECTED_MONTH = 1
+SELECTED_MONTH = 10
 
 
 # ============================================================
