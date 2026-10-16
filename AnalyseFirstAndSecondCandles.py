@@ -596,10 +596,60 @@ try:
                 index=False
             )
 
-            print("\nLatest candle data:")
-            print(
-                df.tail(10).to_string(index=False)
+            
+            # =================================================
+            # PRINT SIMPLE DAILY RESULTS
+            # =================================================
+            summary_output = []
+
+            for item in daily_results:
+                first_color = item["09:15_color"]
+                second_color = item["09:20_color"]
+                relationship = item["relationship"]
+
+                # Convert candle colors to Bullish/Bearish
+                first_candle = (
+                    "Bullish" if first_color == "Green"
+                    else "Bearish" if first_color == "Red"
+                    else first_color
+                )
+
+                second_candle = (
+                    "Bullish" if second_color == "Green"
+                    else "Bearish" if second_color == "Red"
+                    else second_color
+                )
+
+                # Convert validation result
+                if relationship == "Valid":
+                    result = "Success"
+                elif relationship == "Invalid":
+                    result = "Failed"
+                else:
+                    result = relationship
+
+                summary_output.append({
+                    "Date": item["date"],
+                    "Result": result,
+                    "First Candle (09:15)": first_candle,
+                    "Second Candle (09:20)": second_candle
+                })
+
+            summary_print_df = pd.DataFrame(summary_output)
+
+            print("\nDAILY CANDLE RESULTS")
+            print(summary_print_df.to_string(index=False))
+
+            # Save simplified results
+            simple_filename = (
+                f"simple_results_{EXCHANGE}_{SYMBOL_TOKEN}_"
+                f"{start_date:%Y_%m}.csv"
             )
+
+            summary_print_df.to_csv(simple_filename, index=False)
+
+            print(f"\nSimple results saved: {simple_filename}")
+
 
             print(
                 f"\nCandle CSV saved: {filename}"
