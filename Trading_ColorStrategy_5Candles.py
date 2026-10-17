@@ -69,14 +69,14 @@ RULES = {
 
 # Optional CSV header overrides. Normally leave these empty.
 # Set them if your CSV uses different column names.
-CSV_TOKEN = os.getenv("INSTRUMENT_TOKEN_COLUMN", "").strip()
-CSV_SYMBOL = os.getenv("INSTRUMENT_SYMBOL_COLUMN", "").strip()
-CSV_NAME = os.getenv("INSTRUMENT_NAME_COLUMN", "").strip()
-CSV_EXPIRY = os.getenv("INSTRUMENT_EXPIRY_COLUMN", "").strip()
-CSV_STRIKE = os.getenv("INSTRUMENT_STRIKE_COLUMN", "").strip()
-CSV_LOTSIZE = os.getenv("INSTRUMENT_LOTSIZE_COLUMN", "").strip()
-CSV_TYPE = os.getenv("INSTRUMENT_TYPE_COLUMN", "").strip()
-CSV_EXCHANGE = os.getenv("INSTRUMENT_EXCHANGE_COLUMN", "").strip()
+CSV_TOKEN = "symboltoken"
+CSV_SYMBOL = "tradingsymbol"
+CSV_NAME = "name"
+CSV_EXPIRY = "expiry"
+CSV_STRIKE = "strike"
+CSV_LOTSIZE = "lotsize"
+CSV_TYPE = "instrumenttype"
+CSV_EXCHANGE = "exchange"
 
 
 # ============================================================
