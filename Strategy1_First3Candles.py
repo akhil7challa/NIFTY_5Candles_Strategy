@@ -92,6 +92,8 @@ RULES = {
     ("Green", "Green", "Red"): "Red",
     ("Red", "Green", "Red"): "Red",
     ("Green", "Red", "Green"): "Green",
+    ("Red", "Red", "Red"): "Red",
+    ("Green", "Green", "Green"): "Green",
 }
 
 
