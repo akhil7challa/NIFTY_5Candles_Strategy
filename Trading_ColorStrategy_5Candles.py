@@ -51,7 +51,7 @@ CANDLE_GRACE_SECONDS = 10
 FILL_TIMEOUT_SECONDS = 30
 
 # Do not start a new opening trade after this time.
-ENTRY_CUTOFF = dt_time(9, 34)
+ENTRY_CUTOFF = dt_time(23, 59, 59)
 
 # Original opening candle times.
 FIRST_THREE = ["09:15", "09:20", "09:25"]
@@ -387,6 +387,7 @@ def load_instruments():
     return options
 
 
+
 def select_atm_contract(instruments, spot, option_type, today):
     eligible = instruments[
         (instruments["expiry"] >= today)
@@ -394,39 +395,70 @@ def select_atm_contract(instruments, spot, option_type, today):
     ].copy()
 
     if eligible.empty:
-        raise RuntimeError(f"No unexpired NIFTY {option_type} contracts found.")
+        raise RuntimeError(
+            f"No unexpired NIFTY {option_type} contracts found."
+        )
 
+    # Select the nearest expiry
     expiry = min(eligible["expiry"])
     eligible = eligible[eligible["expiry"] == expiry]
 
-    strikes = sorted(eligible["strike"].dropna().unique().tolist())
+    strikes = sorted(
+        eligible["strike"].dropna().unique().tolist()
+    )
 
     if not strikes:
         raise RuntimeError("No usable strikes found.")
 
-    atm_strike = min(strikes, key=lambda value: abs(float(value) - spot))
+    # Find current ATM strike
+    atm_strike = min(
+        strikes,
+        key=lambda value: abs(float(value) - float(spot))
+    )
+    atm_strike = float(atm_strike)
 
-    selected = eligible[eligible["strike"] == atm_strike]
+    # Select ITM strike: CE = ATM - 100, PE = ATM + 100
+    if option_type == "CE":
+        target_strike = atm_strike - 100
+    elif option_type == "PE":
+        target_strike = atm_strike + 100
+    else:
+        raise ValueError(
+            f"Invalid option_type: {option_type}. Use CE or PE."
+        )
+
+    # IMPORTANT: Filter using target_strike, NOT atm_strike
+    selected = eligible[
+        (eligible["strike"].astype(float) == target_strike)
+    ]
 
     if len(selected) != 1:
         raise RuntimeError(
             f"Expected exactly one contract for {expiry} "
-            f"{atm_strike} {option_type}; found {len(selected)}. "
-            "Resolve duplicate or ambiguous instrument rows."
+            f"ATM={atm_strike}, target ITM strike={target_strike} "
+            f"{option_type}; found {len(selected)}. "
+            "Check the instrument master for missing or duplicate rows."
         )
 
     row = selected.iloc[0]
     lot_size = int(row["lot_size"])
 
-    return {
+    result = {
         "symbol": row["symbol"],
         "token": row["token"],
         "expiry": expiry.isoformat(),
-        "strike": float(atm_strike),
+        "strike": target_strike,
         "option_type": option_type,
         "lot_size": lot_size,
         "quantity": lot_size * LOTS,
     }
+
+    print(
+    f"ATM={atm_strike} | Selected ITM strike={target_strike} "
+    f"| Type={option_type} | Contract={result['symbol']}"
+    )
+
+    return result
 
 
 # ============================================================
@@ -435,7 +467,7 @@ def select_atm_contract(instruments, spot, option_type, today):
 
 def get_spot_ltp(api):
     response = api_read(
-        api.getLtpData,
+        api.ltpData,
         SPOT_EXCHANGE,
         SPOT_SYMBOL,
         SPOT_TOKEN,
@@ -764,14 +796,7 @@ def run_strategy(api, instruments, state):
             "before restarting."
         )
 
-    if now_ist().time() >= ENTRY_CUTOFF:
-        log.warning("Opening setup window has passed. No trade today.")
-        state.update({
-            "trade_date": today_key,
-            "day_status": "NO_TRADE",
-        })
-        save_state(state)
-        return
+    pass
 
     # Wait for market open if started early.
     market_open = datetime.combine(today, dt_time(9, 15), tzinfo=IST)
