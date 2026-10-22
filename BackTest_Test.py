@@ -30,7 +30,7 @@ INTERVAL = "FIVE_MINUTE"
 
 IST = ZoneInfo("Asia/Kolkata")
 
-SELECTED_YEAR = 2015
+SELECTED_YEAR = 2016
 
 MAX_RETRIES = 4
 RETRY_BASE_SECONDS = 2
@@ -42,7 +42,6 @@ FETCH_STATUS_CSV = f"nifty_fetch_status_{SELECTED_YEAR}.csv"
 
 FIRST_THREE_TIMES = ["09:15", "09:20", "09:25"]
 FOURTH_CANDLE_TIME = "09:30"
-FIFTH_CANDLE_TIME = "09:35"
 
 CANDLE_COLUMNS = [
     "timestamp", "open", "high", "low", "close", "volume"
@@ -481,34 +480,7 @@ def confirm_fourth_candle(predicted, third, fourth):
 
 
 # ============================================================
-# FIFTH-CANDLE PREDICTION RULE
-# ============================================================
-
-def predict_fifth_candle(third, fourth):
-    """
-    Predict the fifth candle using the actual third and
-    fourth candle colors.
-
-    Third Green + Fourth Green -> Fifth Green
-    Third Red   + Fourth Red   -> Fifth Red
-    Different colors           -> No prediction
-    Doji combination           -> No prediction
-    """
-
-    third_color = third["color"]
-    fourth_color = fourth["color"]
-
-    if third_color == "Green" and fourth_color == "Green":
-        return "Green"
-
-    if third_color == "Red" and fourth_color == "Red":
-        return "Red"
-
-    return "No"
-
-
-# ============================================================
-# ANALYZE ONE TRADING DAY
+# ANALYZE ONE TRADING DAY — FOURTH CANDLE ONLY
 # ============================================================
 
 def analyze_day(trading_date, day_df):
@@ -569,16 +541,6 @@ def analyze_day(trading_date, day_df):
         "fourth_confirmation": "Not Checked",
         "fourth_confirmation_reason": "Not Checked",
 
-        "predicted_5th_color": "No",
-        "actual_5th_color": "Missing",
-
-        "5th_open": None,
-        "5th_high": None,
-        "5th_low": None,
-        "5th_close": None,
-
-        "5th_result": "Not Attempted",
-        "5th_points": 0.0,
         "points": None,
     }
 
@@ -626,7 +588,7 @@ def analyze_day(trading_date, day_df):
     )
 
     # --------------------------------------------------------
-    # NEW RULE: FIRST-THREE-CANDLE MIDPOINT
+    # FIRST-THREE-CANDLE MIDPOINT FILTER
     # --------------------------------------------------------
 
     first_three_highest = float(
@@ -703,10 +665,6 @@ def analyze_day(trading_date, day_df):
         result_row["fourth_confirmation_reason"] = (
             "Rejected by first-three-candle midpoint filter"
         )
-        result_row["predicted_5th_color"] = "No"
-        result_row["5th_result"] = (
-            "No: first-three-candle midpoint filter failed"
-        )
         return result_row
 
     # A fourth-candle Doji is not a correct prediction.
@@ -716,9 +674,6 @@ def analyze_day(trading_date, day_df):
         result_row["fourth_confirmation"] = "Failed"
         result_row["fourth_confirmation_reason"] = (
             "Fourth candle is Doji"
-        )
-        result_row["5th_result"] = (
-            "No: fourth candle is Doji"
         )
         return result_row
 
@@ -743,12 +698,9 @@ def analyze_day(trading_date, day_df):
         result_row["fourth_confirmation_reason"] = (
             "Fourth candle direction does not match prediction"
         )
-        result_row["5th_result"] = (
-            "No: fourth prediction incorrect"
-        )
         return result_row
 
-    # Apply the original fourth-candle confirmation conditions.
+    # Apply the fourth-candle confirmation conditions.
     confirmed, confirmation_reason = confirm_fourth_candle(
         predicted, third, fourth
     )
@@ -760,82 +712,11 @@ def analyze_day(trading_date, day_df):
         confirmation_reason
     )
 
-    if not confirmed:
-        result_row["predicted_5th_color"] = "No"
-        result_row["5th_result"] = (
-            "No: fourth candle failed confirmation"
-        )
-        return result_row
-
-    # Predict the fifth candle if the third and fourth
-    # candle colors match.
-    fifth_prediction = predict_fifth_candle(third, fourth)
-
-    if fifth_prediction == "No":
-        result_row["predicted_5th_color"] = "No"
-        result_row["5th_result"] = (
-            "No: third and fourth candle colors differ"
-        )
-        return result_row
-
-    result_row["predicted_5th_color"] = fifth_prediction
-
-    # --------------------------------------------------------
-    # FETCH ACTUAL FIFTH CANDLE
-    # --------------------------------------------------------
-
-    fifth_rows = day_df[
-        day_df["candle_time"] == FIFTH_CANDLE_TIME
-    ]
-
-    if fifth_rows.empty:
-        result_row["5th_result"] = "Missing Fifth Candle"
-        return result_row
-
-    fifth = fifth_rows.iloc[0]
-    actual_fifth = fifth["color"]
-
-    result_row.update({
-        "actual_5th_color": actual_fifth,
-        "5th_open": float(fifth["open"]),
-        "5th_high": float(fifth["high"]),
-        "5th_low": float(fifth["low"]),
-        "5th_close": float(fifth["close"]),
-    })
-
-    # Stop on a fifth-candle Doji.
-    if actual_fifth == "Doji":
-        result_row["5th_result"] = "Doji"
-        result_row["5th_points"] = 0.0
-        return result_row
-
-    # Calculate fifth-candle points using the prediction.
-    fifth_move = float(
-        fifth["close"] - fifth["open"]
-    )
-
-    fifth_points = (
-        fifth_move
-        if fifth_prediction == "Green"
-        else -fifth_move
-    )
-
-    result_row["5th_points"] = fifth_points
-
-    # Combined points include fourth and fifth candles.
-    result_row["points"] = fourth_points + fifth_points
-
-    result_row["5th_result"] = (
-        "Correct"
-        if actual_fifth == fifth_prediction
-        else "Incorrect"
-    )
-
     return result_row
 
 
 # ============================================================
-# MONTHLY SUMMARY
+# MONTHLY SUMMARY — FOURTH CANDLE ONLY
 # ============================================================
 
 def build_monthly_summary(results_df, fetch_status_df, year):
@@ -846,7 +727,6 @@ def build_monthly_summary(results_df, fetch_status_df, year):
             results_df["month"] == month
         ]
 
-        # Fourth-candle accuracy.
         scored = month_df[
             month_df["result"].isin(["Correct", "Incorrect"])
         ]
@@ -883,31 +763,6 @@ def build_monthly_summary(results_df, fetch_status_df, year):
             status = "UNKNOWN"
             candles_received = 0
 
-        fifth_predictions = month_df[
-            month_df["predicted_5th_color"].isin(["Green", "Red"])
-        ]
-
-        fifth_scored = fifth_predictions[
-            fifth_predictions["5th_result"].isin(
-                ["Correct", "Incorrect"]
-            )
-        ]
-
-        fifth_correct = int(
-            (fifth_scored["5th_result"] == "Correct").sum()
-        )
-
-        fifth_incorrect = int(
-            (fifth_scored["5th_result"] == "Incorrect").sum()
-        )
-
-        fifth_scored_total = fifth_correct + fifth_incorrect
-
-        fifth_accuracy = (
-            fifth_correct / fifth_scored_total * 100
-            if fifth_scored_total else 0.0
-        )
-
         monthly_rows.append({
             "year": year,
             "month": month,
@@ -938,18 +793,6 @@ def build_monthly_summary(results_df, fetch_status_df, year):
 
             "no_prediction": int(
                 (month_df["result"] == "No Prediction").sum()
-            ),
-
-            "fifth_candle_extended": len(fifth_predictions),
-            "fifth_correct": fifth_correct,
-            "fifth_incorrect": fifth_incorrect,
-            "fifth_scored_predictions": fifth_scored_total,
-            "fifth_accuracy_percent": round(fifth_accuracy, 2),
-
-            "fifth_confirmation_failed": int(
-                month_df["5th_result"].astype(str).str.startswith(
-                    "No:"
-                ).sum()
             ),
         })
 
@@ -1058,15 +901,6 @@ def main():
             "fourth_confirmation",
             "fourth_confirmation_reason",
 
-            "predicted_5th_color",
-            "actual_5th_color",
-            "5th_result",
-            "5th_open",
-            "5th_high",
-            "5th_low",
-            "5th_close",
-            "5th_points",
-
             "points",
         ]
 
@@ -1098,11 +932,6 @@ def main():
             "incorrect",
             "accuracy_percent",
             "total_points",
-            "fifth_candle_extended",
-            "fifth_correct",
-            "fifth_incorrect",
-            "fifth_accuracy_percent",
-            "fifth_confirmation_failed",
         ]
 
         print(
@@ -1110,7 +939,7 @@ def main():
         )
 
         # ----------------------------------------------------
-        # YEARLY SUMMARY: FOURTH-CANDLE PREDICTIONS
+        # YEARLY SUMMARY — FOURTH-CANDLE PREDICTIONS
         # ----------------------------------------------------
 
         scored = results_df[
@@ -1136,47 +965,6 @@ def main():
             scored["points"].fillna(0).sum()
         )
 
-        # ----------------------------------------------------
-        # YEARLY SUMMARY: FIFTH-CANDLE PREDICTIONS
-        # ----------------------------------------------------
-
-        fifth_predictions = results_df[
-            results_df["predicted_5th_color"].isin(
-                ["Green", "Red"]
-            )
-        ]
-
-        fifth_scored = fifth_predictions[
-            fifth_predictions["5th_result"].isin(
-                ["Correct", "Incorrect"]
-            )
-        ]
-
-        fifth_extended_count = len(fifth_predictions)
-
-        fifth_correct_count = int(
-            (fifth_scored["5th_result"] == "Correct").sum()
-        )
-
-        fifth_incorrect_count = int(
-            (fifth_scored["5th_result"] == "Incorrect").sum()
-        )
-
-        fifth_scored_total = (
-            fifth_correct_count + fifth_incorrect_count
-        )
-
-        fifth_yearly_accuracy = (
-            fifth_correct_count / fifth_scored_total * 100
-            if fifth_scored_total else 0.0
-        )
-
-        fifth_confirmation_failed_count = int(
-            results_df["5th_result"].astype(str).str.startswith(
-                "No:"
-            ).sum()
-        )
-
         print("\n" + "=" * 80)
         print(f"YEARLY SUMMARY - {SELECTED_YEAR}")
         print("=" * 80)
@@ -1187,18 +975,6 @@ def main():
         print(f"Fourth-candle accuracy         : {yearly_accuracy:.2f}%")
         print(f"Total directional points       : {yearly_points:.2f}")
         print(f"Trading dates analyzed         : {len(results_df)}")
-
-        print("-" * 80)
-
-        print(f"Fifth-candle predictions       : {fifth_extended_count}")
-        print(f"Fifth candle correct           : {fifth_correct_count}")
-        print(f"Fifth candle incorrect         : {fifth_incorrect_count}")
-        print(f"Scored fifth-candle predictions: {fifth_scored_total}")
-        print(f"Fifth-candle accuracy          : {fifth_yearly_accuracy:.2f}%")
-        print(
-            f"Fifth extension rejected       : "
-            f"{fifth_confirmation_failed_count}"
-        )
 
         # ----------------------------------------------------
         # WARN ABOUT MISSING DATA
