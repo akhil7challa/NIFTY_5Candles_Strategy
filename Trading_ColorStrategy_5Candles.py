@@ -51,7 +51,7 @@ CANDLE_GRACE_SECONDS = 10
 FILL_TIMEOUT_SECONDS = 30
 
 # Do not start a new opening trade after this time.
-ENTRY_CUTOFF = dt_time(23, 59, 59)
+ENTRY_CUTOFF = dt_time(9, 34)
 
 # Original opening candle times.
 FIRST_THREE = ["09:15", "09:20", "09:25"]
@@ -796,7 +796,14 @@ def run_strategy(api, instruments, state):
             "before restarting."
         )
 
-    pass
+    if now_ist().time() >= ENTRY_CUTOFF:
+        log.warning("Opening setup window has passed. No trade today.")
+        state.update({
+            "trade_date": today_key,
+            "day_status": "NO_TRADE",
+        })
+        save_state(state)
+        return
 
     # Wait for market open if started early.
     market_open = datetime.combine(today, dt_time(9, 15), tzinfo=IST)
