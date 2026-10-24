@@ -88,12 +88,12 @@ def add_candle_metrics(df):
 # ============================================================
 
 RULES = {
-    ("Red", "Red", "Green"): "Green",
+    ("Red", "Red", "Green"): "Red",
     ("Green", "Green", "Red"): "Red",
     ("Red", "Green", "Red"): "Red",
     ("Green", "Red", "Green"): "Green",
     ("Red", "Red", "Red"): "Red",
-    ("Green", "Green", "Green"): "Green",
+    ("Green", "Green", "Green"): "Red",
 }
 
 
