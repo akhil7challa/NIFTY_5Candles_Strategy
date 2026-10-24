@@ -1,0 +1,41 @@
+category,pattern,sessions,green_rate_pct,red_rate_pct,green_CI_low_pct,green_CI_high_pct,green_edge_vs_subset_baseline_pct,absolute_distance_from_50_pct,green_edge_vs_overall_rate_pct
+3-candle sequence,RGG,364,42.86,57.14,37.87,47.99,,7.140000000000001,-4.45
+3-candle sequence,RGR,358,44.13,55.87,39.08,49.31,,5.869999999999997,-3.18
+3-candle sequence,RRG,348,42.82,57.18,37.72,48.07,,7.18,-4.49
+3-candle sequence,RRR,327,43.73,56.27,38.46,49.15,,6.270000000000003,-3.58
+3-candle sequence,GGR,311,45.66,54.34,40.21,51.21,,4.340000000000003,-1.65
+3-candle sequence,GGG,265,49.43,50.57,43.47,55.42,,0.5700000000000003,2.12
+3-candle sequence,GRR,262,57.25,42.75,51.2,63.1,,7.25,9.94
+3-candle sequence,GRG,236,59.32,40.68,52.95,65.39,,9.32,12.01
+Candle 3 wick,Candle 3 upper wick: top quartile,618,49.68,50.32,45.75,53.61,,0.3200000000000003,2.37
+Candle 3 wick,Candle 3 upper wick: bottom quartile,618,46.44,53.56,42.54,50.38,,3.5600000000000023,-0.87
+Candle 3 wick,Candle 3 lower wick: top quartile,618,48.38,51.62,44.46,52.32,,1.6199999999999974,1.07
+Candle 3 wick,Candle 3 lower wick: bottom quartile,618,45.31,54.69,41.42,49.25,,4.689999999999998,-2.0
+First-three close position,Low third,824,44.78,55.22,41.42,48.19,,5.219999999999999,-2.53
+First-three close position,High third,824,50.0,50.0,46.59,53.41,,0.0,2.69
+First-three close position,Middle third,823,47.14,52.86,43.76,50.56,,2.8599999999999994,-0.17
+Gap magnitude,Small gap (lowest third),824,46.0,54.0,42.62,49.41,,4.0,-1.31
+Gap magnitude,Large gap (highest third),824,49.15,50.85,45.75,52.56,,0.8500000000000014,1.84
+Gap magnitude,Medium gap (middle third),823,46.78,53.22,43.39,50.2,,3.219999999999999,-0.53
+Green candle count,1 of 3 green,968,47.21,52.79,44.08,50.36,,2.789999999999999,-0.1
+Green candle count,2 of 3 green,911,48.08,51.92,44.85,51.32,,1.9200000000000017,0.77
+Green candle count,0 of 3 green,327,43.73,56.27,38.46,49.15,,6.270000000000003,-3.58
+Green candle count,3 of 3 green,265,49.43,50.57,43.47,55.42,,0.5700000000000003,2.12
+Opening momentum,Negative first-three return,1350,44.96,55.04,42.33,47.63,,5.039999999999999,-2.35
+Opening momentum,Positive first-three return,1118,50.18,49.82,47.25,53.1,,0.17999999999999972,2.87
+Opening momentum,Near-flat first-three return,3,33.33,66.67,6.15,79.23,,16.67,-13.98
+Opening range,Low third,824,45.51,54.49,42.14,48.92,,4.490000000000002,-1.8
+Opening range,High third,824,50.36,49.64,46.96,53.77,,0.35999999999999943,3.05
+Opening range,Middle third,823,46.05,53.95,42.67,49.47,,3.950000000000003,-1.26
+Overnight gap,Gap up,1632,48.28,51.72,45.87,50.71,,1.7199999999999989,0.97
+Overnight gap,Gap reversal,1351,44.49,55.51,41.85,47.15,,5.509999999999998,-2.82
+Overnight gap,Gap continuation,1115,50.76,49.24,47.83,53.69,,0.759999999999998,3.45
+Overnight gap,Gap down,836,45.33,54.67,41.99,48.72,,4.670000000000002,-1.98
+TEST ONLY: 3-candle sequence,RRR,58,44.83,55.17,32.75,57.55,,5.170000000000002,-2.48
+TEST ONLY: 3-candle sequence,GGR,49,36.73,63.27,24.66,50.73,,13.270000000000003,-10.58
+TEST ONLY: 3-candle sequence,GRR,47,44.68,55.32,31.41,58.75,,5.32,-2.63
+TEST ONLY: 3-candle sequence,GRG,46,65.22,34.78,50.77,77.32,,15.219999999999999,17.91
+TEST ONLY: 3-candle sequence,RGG,46,39.13,60.87,26.39,53.54,,10.869999999999997,-8.18
+TEST ONLY: 3-candle sequence,RRG,43,48.84,51.16,34.62,63.25,,1.1599999999999966,1.53
+TEST ONLY: 3-candle sequence,GGG,41,53.66,46.34,38.75,67.94,,3.6599999999999966,6.35
+TEST ONLY: 3-candle sequence,RGR,41,41.46,58.54,27.76,56.63,,8.54,-5.85

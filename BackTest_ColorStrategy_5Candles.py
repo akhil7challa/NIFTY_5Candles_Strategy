@@ -93,6 +93,8 @@ RULES = {
     ("Green", "Red", "Green"): "Green",
     ("Red", "Red", "Red"): "Red",
     ("Green", "Green", "Green"): "Red",
+    ("Red", "Green", "Green"): "Red",
+    ("Green", "Red", "Red"): "Green",
 }
 
 

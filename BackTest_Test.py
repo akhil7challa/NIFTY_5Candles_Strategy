@@ -31,7 +31,7 @@ INTERVAL = "FIVE_MINUTE"
 IST = ZoneInfo("Asia/Kolkata")
 
 # Change the year you want to analyze.
-SELECTED_YEAR = 2015
+SELECTED_YEAR = 2026
 
 MAX_RETRIES = 4
 RETRY_BASE_SECONDS = 2
@@ -93,6 +93,8 @@ RULES = {
     ("Green", "Red", "Green"): "Green",
     ("Red", "Red", "Red"): "Red",
     ("Green", "Green", "Green"): "Red",
+    ("Red", "Green", "Green"): "Red",
+    ("Green", "Red", "Red"): "Green",
 }
 
 
